@@ -1,0 +1,55 @@
+// Liang Cai, 2014-11-20
+// for mMaple3 imaging
+
+pt = 0.8; // move percentage
+d = "up"; // sample move direction; corner(12,45,78,X) use half of pt
+act_t = 5; // time in second
+act_p = 5.0; // laser power
+field_size = 48.43; // 150x Left BF 48.43
+
+// DO NOT CHANGE ANYTHING BELOW
+// mmc.setShutterDevice("AndorLaserCombiner");
+xy = mmc.getXYStageDevice(); 
+xPos = mmc.getXPosition(xy); 
+yPos = mmc.getYPosition(xy); 
+
+while ( mmc.isSequenceRunning() ) {
+  gui.sleep(25);
+}
+gui.setPause(true);
+if ( gui.isPaused() ) {
+  if (       d == "up") {
+    gui.setXYStagePosition(xPos, yPos+field_size*pt);
+  } else if (d == "down") {
+    gui.setXYStagePosition(xPos, yPos-field_size*pt);
+  } else if (d == "left") {
+    gui.setXYStagePosition(xPos-field_size*pt, yPos);
+  } else if (d == "right") {
+    gui.setXYStagePosition(xPos+field_size*pt, yPos);
+  } else if (d == "corner12") {
+    gui.setXYStagePosition(xPos+field_size*pt/2, yPos+field_size*pt/2);
+  } else if (d == "corner45") {
+    gui.setXYStagePosition(xPos+field_size*pt/2, yPos-field_size*pt/2);
+  } else if (d == "corner78") {
+    gui.setXYStagePosition(xPos-field_size*pt/2, yPos-field_size*pt/2);
+  } else if (d == "cornerX") {
+    gui.setXYStagePosition(xPos-field_size*pt/2, yPos+field_size*pt/2);
+  } else {
+  	 gui.message("  !! error d");
+  	 gui.setPause(false);
+  	 return;
+  }
+  gui.message("  activating...");
+  mmc.setConfig("laser channel", "fast_405");
+  mmc.waitForConfig("laser channel", "fast_405");
+  mmc.setProperty("AndorLaserCombiner", "PowerSetpoint405", act_p);
+  mmc.waitForDevice("AndorLaserCombiner");
+  mmc.setExposure(1000*act_t);
+  gui.snapSingleImage(); // shown in Snap/Live Window
+  mmc.setExposure(100);
+  mmc.setProperty("AndorLaserCombiner", "PowerSetpoint405", 0.0);
+  mmc.waitForDevice("AndorLaserCombiner");
+  gui.message("  activation done, then move back");
+  gui.setXYStagePosition(xPos, yPos);
+  gui.setPause(false);
+}

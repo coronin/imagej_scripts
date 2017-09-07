@@ -1,0 +1,42 @@
+// Liang Cai, 2014-11-20
+// for mMaple3 imaging
+
+pt = 1.5; // move percentage
+d = "right"; // sample move direction
+act = 10; // second
+field_size = 48; // 150x Left
+
+// DO NOT CHANGE ANYTHING BELOW
+// mmc.setShutterDevice("AndorLaserCombiner");
+xy = mmc.getXYStageDevice(); 
+xPos = mmc.getXPosition(xy); 
+yPos = mmc.getYPosition(xy); 
+
+gui.setPause(true);
+if ( gui.isPaused() ) {
+
+  gui.message("  move out");
+  if (d == "up") {
+    gui.setXYStagePosition(xPos, yPos-field_size*pt);
+  } else if (d == "down") {
+    gui.setXYStagePosition(xPos, yPos+field_size*pt);
+  } else if (d == "left") {
+    gui.setXYStagePosition(xPos-field_size*pt, yPos);
+  } else if (d == "right") {
+    gui.setXYStagePosition(xPos+field_size*pt, yPos);
+  }
+
+  gui.message("  activating...");
+  mmc.setConfig("laser channel", "fast_405");
+  mmc.waitForConfig("laser channel", "fast_405");
+  mmc.setShutterOpen(true);
+  gui.sleep(1000*act);
+  mmc.setShutterOpen(false);
+  gui.message("  activation done");
+
+  gui.message("  move back");
+  gui.setXYStagePosition(xPos, yPos);
+
+  gui.setPause(false);
+
+}

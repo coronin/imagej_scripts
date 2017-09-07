@@ -1,0 +1,47 @@
+// Liang Cai, 2014-11-20
+// for mMaple3 imaging
+
+pt = 0.77; // move percentage
+d = "right"; // sample move direction
+act = 5; // second
+field_size = 48.43; // 150x Left BF 48.43
+
+// DO NOT CHANGE ANYTHING BELOW
+// mmc.setShutterDevice("AndorLaserCombiner");
+xy = mmc.getXYStageDevice(); 
+xPos = mmc.getXPosition(xy); 
+yPos = mmc.getYPosition(xy); 
+
+while ( mmc.isSequenceRunning() ) {
+  gui.sleep(25);
+}
+gui.setPause(true);
+if ( gui.isPaused() ) {
+  mmc.setShutterOpen("AndorLaserCombiner", false);
+  gui.message("  move out");
+  if (d == "up") {
+    gui.setXYStagePosition(xPos, yPos-field_size*pt);
+  } else if (d == "down") {
+    gui.setXYStagePosition(xPos, yPos+field_size*pt);
+  } else if (d == "left") {
+    gui.setXYStagePosition(xPos-field_size*pt, yPos);
+  } else if (d == "right") {
+    gui.setXYStagePosition(xPos+field_size*pt, yPos);
+  }// else {
+  //	 stop;
+  //}
+  mmc.setConfig("laser channel", "fast_488");
+  mmc.waitForConfig("laser channel", "fast_488");
+  gui.snapSingleImage(); // shown in Snap/Live Window
+  gui.message("  activating...");
+  mmc.setConfig("laser channel", "fast_405");
+  mmc.waitForConfig("laser channel", "fast_405");
+  curr_exp = mmc.getExposure();
+  mmc.setExposure(1000*act);
+  gui.snapSingleImage(); // shown in Snap/Live Window
+  mmc.setExposure(curr_exp);
+
+  gui.message("  activation done, then move back");
+  gui.setXYStagePosition(xPos, yPos);
+  gui.setPause(false);
+}
