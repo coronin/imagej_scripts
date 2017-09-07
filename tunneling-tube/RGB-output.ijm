@@ -1,0 +1,15 @@
+run("Duplicate...", "title=RGB2");
+selectWindow("RGB");
+run("Split Channels");
+selectWindow("RGB (blue)");
+close();
+selectWindow("RGB2");
+run("Set Scale...", "distance=1 known=0.0946 unit=um");
+run("Scale Bar...", "width=2 height=4 font=8 color=White background=None location=[Upper Left]");
+selectWindow("RGB (red)");
+run("RGB Color");
+selectWindow("RGB (green)");
+run("RGB Color");
+run("Combine...", "stack1=RGB2 stack2=[RGB (red)]");
+run("Combine...", "stack1=[Combined Stacks] stack2=[RGB (green)]");
+rename("done");
